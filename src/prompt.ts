@@ -1,3 +1,4 @@
+
 export const buildPrompt = (diff: string, detailed: boolean): string => {
   const modeRules = detailed
     ? `
@@ -40,6 +41,13 @@ BODY RULES:
 - Do NOT repeat the summary
 - Use "-" bullets ONLY in detailed mode
 - Bullets must describe meaningful technical changes
+
+SPECIAL BODY RULE (Dependencies):
+
+If dependencies are modified:
+
+- Bullets MUST name dependencies
+- Include version info if visible
 `
     : `
 MODE: STANDARD
@@ -115,6 +123,62 @@ PRECEDENCE RULES:
 Type must be lowercase.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DEPENDENCY-SPECIFIC RULES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+These rules apply when dependency files change.
+
+Dependency files include:
+
+- package.json
+- package-lock.json
+- pnpm-lock.yaml
+- yarn.lock
+
+WHEN dependencies are added, updated, or removed:
+
+Use:
+
+type: chore  
+scope: deps
+
+DESCRIPTION REQUIREMENTS:
+
+The description MUST include dependency names.
+
+❌ FORBIDDEN DESCRIPTIONS:
+
+- install dependencies
+- update packages
+- add dependencies
+- update project dependencies
+- install project dependencies
+
+These phrases are NOT allowed.
+
+Instead:
+
+List key dependencies explicitly.
+
+GOOD EXAMPLES:
+
+chore(deps): add express and dotenv dependencies
+
+chore(deps): update lodash and axios versions
+
+chore(deps): add zod for schema validation
+
+IF many dependencies are modified:
+
+List the most important 2–4 dependencies only.
+
+Never use vague wording such as:
+
+- numerous packages
+- various dependencies
+- multiple libraries
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 3. SCOPE RULES
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -128,6 +192,7 @@ Database config → config
 Logging system → logger  
 UI components → ui  
 Validation layer → validation  
+Dependencies → deps  
 
 If unclear:
 
@@ -153,6 +218,13 @@ The description MUST:
 - Be ≤ 72 characters
 - Contain NO trailing punctuation
 - Contain NO emojis
+
+SPECIAL CASE — Dependencies:
+
+If dependencies are modified:
+
+- The description MUST name at least one dependency
+- Never use generic dependency wording
 
 Avoid vague phrases such as:
 
@@ -202,6 +274,7 @@ Before finishing, verify:
 - First line format is correct
 - No placeholder text
 - No generic wording
+- Dependency rules followed if applicable
 - Output matches selected MODE
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -216,6 +289,19 @@ Do NOT invent behavior not visible in the diff.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 TASK:
+
+Before generating the commit message:
+
+Check whether dependency files are modified:
+
+- package.json
+- package-lock.json
+- pnpm-lock.yaml
+- yarn.lock
+
+If yes:
+
+Apply DEPENDENCY-SPECIFIC RULES strictly.
 
 Analyze the following Git diff and generate a commit message.
 
