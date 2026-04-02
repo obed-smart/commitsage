@@ -45,7 +45,7 @@ export const generateCommitMessage = async (
     process.exit(1);
   }
 
-  console.log('Detailed mode:', detailed);
+ 
   const prompt = buildPrompt(rawDiff, detailed);
 
   try {

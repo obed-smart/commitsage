@@ -23,20 +23,29 @@ const git: SimpleGit = simpleGit();
 const program = new Command();
 
 function trimDiff(diff: string): string {
-  const cleanedDiff = diff.replace(
+  const MAX_FILE_LINES = 200;
+  const MAX_TOTAL_FILES = 50;
+
+  // Hide large lockfile diffs
+  const cleaned = diff.replace(
     /diff --git a\/package-lock\.json[\s\S]*?(?=diff --git|$)/g,
-    '[package-lock.json diff hidden]\n',
+    'diff --git a/package-lock.json b/package-lock.json\n[lockfile diff hidden]\n',
   );
 
-  const MAX_CHARS = 250000;
-  const MAX_LINES = 1000;
 
-  const shortDiff =
-    cleanedDiff.length > MAX_CHARS
-      ? cleanedDiff.slice(0, MAX_CHARS)
-      : cleanedDiff;
+  const fileDiffs = cleaned.split(/^diff --git/m);
 
-  return shortDiff.split('\n').slice(0, MAX_LINES).join('\n').trim();
+  const trimmedFiles = fileDiffs.slice(0, MAX_TOTAL_FILES).map((file) => {
+    const lines = file.split('\n');
+
+    if (lines.length > MAX_FILE_LINES) {
+      return lines.slice(0, MAX_FILE_LINES).join('\n') + '\n[diff truncated]';
+    }
+
+    return file;
+  });
+
+  return trimmedFiles.join('\n').trim();
 }
 
 program
